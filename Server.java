@@ -52,19 +52,29 @@ public class Server {
     }
 
 
-    private void uploadFile(TCUploadRequestMessage message){
-    	System.out.println("Receving a file");
+    private TCUploadResponseMessage uploadFile(TCUploadRequestMessage message){
 
-		File dest = new File(message.filename);
+    	try{
 
-		OutputStream output = new FileOutputStream(dest);
-	
-		output.write(message.fileData);
+	    	System.out.println("Receving a file");
+
+			File dest = new File(message.filename);
+
+			OutputStream output = new FileOutputStream(dest);
+		
+			output.write(message.fileData);
+
+			return (new TCUploadResponseMessage(true, "Upload Sucess"));
+
+		} catch(Exception e){
+			return (new TCUploadResponseMessage(false, "Upload fail"));
+			
+		}
 
     }
 
     private void downloadFile(TCDownloadRequestMessage message){
-    	
+
 
     }
 
@@ -90,19 +100,19 @@ public class Server {
 		TCMessage message = connection.readPacket();
 
 		if(message instanceof TCUploadRequestMessage){
-			uploadFile((TCUploadRequestMessage) message);
+			connection.sendPacket(uploadFile((TCUploadRequestMessage) message));
 		}
 
 		if(message instanceof TCDownloadRequestMessage){
-			downloadFile((TCDownloadRequestMessage) message);
+			connection.sendPacket(downloadFile((TCDownloadRequestMessage) message));
 		}
 
 		if(message instanceof TCVouchRequestMessage){
-			createVouch((TCVouchRequestMessage) message);
+			connection.sendPacket((createVouch((TCVouchRequestMessage) message));
 		}
 
 		if(message instanceof TCListRequestMessage) {
-			listFiles((TCListRequestMessage) message);
+			connection.sendPacket(listFiles((TCListRequestMessage) message));
 		}
 			/*
 			Server serverInstance = new Server();
@@ -117,8 +127,6 @@ public class Server {
 
 				serverInstance.sslsocket = (SSLSocket) serverInstance.sslserversocket.accept();
 
-				
-*/
 		String str = null;
 			while ((str = bufferedreader.readLine()) != null) {
 
@@ -190,9 +198,6 @@ public class Server {
 						System.out.println();
 					}
 				}
-				
-				continue;
-			}
-		}
+				**/
 	}
 }

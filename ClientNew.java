@@ -37,6 +37,11 @@ public class ClientNew{
 		System.setProperty("javax.net.ssl.trustStorePassword", "123456");
 	}
 
+	private static void fatalError(String message) {
+		System.out.println(message);
+		System.exit(-1);
+	}
+
 	private static boolean findAndSetServerDetails(String hostPort) {
 		try {
 			String parts[] = hostPort.split(":");
@@ -48,12 +53,10 @@ public class ClientNew{
 			try {
 				serverPort = Integer.parseInt(parts[1]);
 			} catch (NumberFormatException e) {
-				System.out.println("Error: Server Port is NOT a number");
-				return false;
+				fatalError("Error: Server Port is NOT a number");
 			}
 		} catch (Exception ex) {
-			System.out.println("ERROR: Could not find a server/port.");
-			System.exit(-1);
+			fatalError("ERROR: Could not find a server/port.");
 
 		}
 		return true;
@@ -74,8 +77,7 @@ public class ClientNew{
 	
 					}
 				catch(Exception e) {
-					System.out.println("Sorry, the server at " + hostPort + " could not be reached.");
-					System.exit(-1);
+					fatalError("Sorry, the server at " + hostPort + " could not be reached.");
 				}
 			}
 		}
@@ -107,7 +109,7 @@ public class ClientNew{
 			receiveResponse(socket);
 		}
 		catch(Exception e) {
-			throw new RuntimeException(e);
+			fatalError("Couldn't find the file " + fileName);
 		}      
 	}
 
@@ -138,21 +140,26 @@ public class ClientNew{
 			TCFileList fileList = response.files;
 			System.out.println(fileList.toString());
 	    } catch(Exception ex) {
-	    	System.out.println("Could not list the files.");
-			System.exit(-1);
+	    	fatalError("Could not list the files.");
 	    }
 	}
 
 	public static void vouchForFile(String fileName, String keyName) {
+		byte[] sigBytes = null;
+		String certFileName = keyName + ".crt";
 		try {
+			// sendFile(certFileName);
 			TrustManager manager = new TrustManager();
 			File file = new File(fileName);
 			String sigFileName = manager.createSignature(file, keyName).getName();
-			byte[] sigBytes = TrustManager.loadFileAsBytes(sigFileName);
-
-			TCVouchRequestMessage message = new TCVouchRequestMessage(fileName, keyName + ".crt", sigBytes);
+			sigBytes = TrustManager.loadFileAsBytes(sigFileName);
+		} catch(Exception ex) {
+			fatalError("Error: couldn't load keys for identity " + keyName);
+		}
+		try {
+			TCVouchRequestMessage message = new TCVouchRequestMessage(fileName, certFileName, sigBytes);
+			System.out.println("Sending vouch-request.");
 			socket.sendPacket(message);
-
 			receiveResponse(socket);
 		} catch (Exception ex) {
 			throw new RuntimeException(ex);
@@ -160,9 +167,6 @@ public class ClientNew{
 	}
 
 	public static void main(String args[]) {
-		System.setProperty("javax.net.ssl.trustStore","sslKey");
-		System.setProperty("javax.net.ssl.trustStorePassword", "123456");
-
 		openConnection("localhost:19999");
 		System.out.println("Connected");
 		fetchFile("kittens.jpg", 1);

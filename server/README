@@ -1,0 +1,30 @@
+CITS3002 Project Submission Part 1
+Group Members:
+	- 20176974 Henry Greville
+	- 21153667 Emily Martin
+	- 20763213 Steven Tseng
+
+To compile the client: `javac ClientNew.java trustcloud.java TrustManager.java`
+To compile the server: `javac Server.java TrustManager.java`
+
+Both components expect the `sslKey` file to be present. Its password is hardcoded.
+The server defaults to port 19999.
+
+A number of non-code files are included here for testing. They comprise 2 images and a small web of trust, involving 4 parties. Private key files (.jkey) are also included here so vouching can be performed by the client. They should be removed when run as a server.
+
+Both the client and the server components expect filenames to be relative to their working directory.
+
+Acceptable invocations of the client:
+java trustcloud -h localhost:19999 -l
+java trustcloud -h localhost:19999 -a kittens.jpg
+java trustcloud -h localhost:19999 -u john.crt
+java trustcloud -h localhost:19999 -f kittens2.jpg -c 2
+java trustcloud -h localhost:19999 -v kittens.jpg alice
+java trustcloud -h localhost:19999 -v bob.crt alice
+
+Note that vouching for a `.crt` file represents vouching for the identity associated with the certificate. A ring of trust is constructed by performing this vouching.
+If a file is vouched-for with a certificate not present on the server, the vouching will be disregarded until the certificate is uploaded.
+
+the -v option takes two arguments.
+1: the name of the file to be vouched for (assumed to be in the current working directy of the client) (with file extension)
+2: the NAME of the public/private key, no extension at all. (private key files and certificates are expecting to have matching names.)

@@ -233,7 +233,7 @@ class TrustManager {
 			instance.update(fileData);
 			result = instance.verify(allegedSignature);
 		} catch (Exception ex) {
-			throw new RuntimeException(ex);
+			return false;
 		}
 		return result;
 	}

@@ -28,7 +28,7 @@ public class Server {
 			TrustManager manager = new TrustManager();
 			for (String path:paths) {
 				// prints filename and directory name
-				if (!path.endsWith(".sig")) {
+				if (! path.endsWith(".sig") && ! path.endsWith(".class") && ! path.endsWith(".p12") && ! path.startsWith(".")) {
 					int circumference = 0;
 					try {
 						circumference = manager.getCircumference(path);
@@ -60,7 +60,7 @@ public class Server {
 		
 			output.write(message.fileData);
 
-			return (new TCUploadResponseMessage(true, "Upload Sucess"));
+			return (new TCUploadResponseMessage(true, "Sucessfully uploaded " + message.fileName));
 
 		} catch(Exception e) {
 			return (new TCUploadResponseMessage(false, "Upload fail"));
@@ -88,6 +88,7 @@ public class Server {
 	}
 
 	private TCVouchResponseMessage createVouch(TCVouchRequestMessage message) {
+		System.out.println("Saved the voucher.");
 		String keyName = message.certName.split(TrustManager.CERTIFICATE_EXTENSION)[0];
 		// get the name from trust manager
 		String sigFileName = TrustManager.createSignatureName(message.fileName, keyName);
@@ -118,6 +119,7 @@ public class Server {
 			try {
 				TCSocket connection = socket.accept();
 				TCMessage message = connection.readPacket();
+				System.out.println("Received another packet.");
 			
 				if(message instanceof TCUploadRequestMessage) {
 					connection.sendPacket(server.uploadFile((TCUploadRequestMessage) message));
@@ -128,6 +130,7 @@ public class Server {
 				}
 	
 				if(message instanceof TCVouchRequestMessage) {
+					System.out.println("Vouch-request received.");
 					connection.sendPacket(server.createVouch((TCVouchRequestMessage) message));
 				}
 	
@@ -135,7 +138,7 @@ public class Server {
 					connection.sendPacket(server.listFiles((TCListRequestMessage) message));
 				}
 			} catch (Exception ex) {
-				throw new RuntimeException(ex);
+				ex.printStackTrace();
 			}
 		}
 	}

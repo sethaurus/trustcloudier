@@ -44,6 +44,9 @@ class TrustManager {
 		// No internal state is maintained.
 	}
 
+	public static final String SIG_EXTENSION = ".sig";
+	public static final String SIG_NAME_DELIMITER = ".signed-by.";
+
 	public boolean checkCircumference(String fileName, int expectedCircumference) {
 		// Determine whether a file is protected by a ring-of-trust with
 		// at least the specified circumference.
@@ -63,12 +66,16 @@ class TrustManager {
 		return maxSeen;
 	}
 
+	public String createSignatureName(String inputFileName, String identityName) {
+		return inputFileName + SIG_NAME_DELIMITER + identityName + SIG_EXTENSION;
+	}
+
 	public File createSignature(File inputFile, String identityName) {
 		// computes a signature from an input file and a private key (determined by name),
 		// then saves this signature as a file.
 		// The filename of the resulting signature determines which file+key combination
 		// it represents, which will be verified upon reading.
-		File outputFile = new File(inputFile.getName() + ".signed-by." + identityName + ".sig");
+		File outputFile = new File(createSignatureName(inputFile.getName(), identityName));
 		try {
 			// May fail here if we are unable to create the file
 			outputFile.createNewFile();
@@ -186,12 +193,12 @@ class TrustManager {
 
 	private String getNameOfSignatory(File sigFile) {
 		// Returns the name of the identity who allegedly made this signature
-		return sigFile.getName().split(".signed-by.")[1].split(".sig")[0];
+		return sigFile.getName().split(SIG_NAME_DELIMITER)[1].split(SIG_EXTENSION)[0];
 	}
 
 	private String getNameOfSignee(File sigFile) {
 		// Returns the alleged subject filename of this signature
-		return sigFile.getName().split(".signed-by.")[0];
+		return sigFile.getName().split(SIG_NAME_DELIMITER)[0];
 	}
 
 

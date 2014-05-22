@@ -147,7 +147,7 @@ public class trustcloud {
 		ClientNew back = new ClientNew();
 
 		try {
-			back.openConection(serverConect);
+			back.openConnection(serverConect);
 		}
 		catch (Exception exception) {
             exception.printStackTrace();        // Print error
@@ -180,6 +180,6 @@ public class trustcloud {
 			back.listFiles();
 		}
 
-		back.closeConection();
+		back.closeConnection();
 	}
 }

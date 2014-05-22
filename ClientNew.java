@@ -54,10 +54,10 @@ public class ClientNew{
 		return true;
 	}
 	/*
-	* Opens a conection to the server
+	* Opens a connection to the server
 	*
 	*/
-	public static void openConection(String hostPort) {
+	public static void openConnection(String hostPort) {
 		if (socket == null) {
 			if (findAndSetServerDetails(hostPort)) {
 				try {
@@ -78,7 +78,7 @@ public class ClientNew{
 	* Do nothing. 
 	*
 	*/
-	public static void closeConection() {
+	public static void closeConnection() {
 		//... NOOP
 	}
 
@@ -156,10 +156,10 @@ public class ClientNew{
 		System.setProperty("javax.net.ssl.trustStore","sslKey");
 		System.setProperty("javax.net.ssl.trustStorePassword", "123456");
 
-		openConection("localhost:19999");
+		openConnection("localhost:19999");
 		System.out.println("Connected");
 		fetchFile("kittens.jpg", 1);
-		closeConection();
+		closeConnection();
 		System.out.println("Disconected");
 	}
 

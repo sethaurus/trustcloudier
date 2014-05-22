@@ -28,17 +28,9 @@ public class ClientNew{
 	private static int serverPort;
 	private static boolean connected = false;
 
-	private static SSLSocketFactory sslsocketfactory;
-	private static SSLSocket sslsocket;
+	private static TCSocketFactory socketfactory;
+	private static TCSocket socket;
 	private static String serverConnect = null;
-
-	private static OutputStream outputstream;
-	private static OutputStreamWriter outputstreamwriter;
-	private static BufferedWriter bufferedwriter;
-
-	private static InputStream inputstream;
-	private static InputStreamReader inputstreamreader;
-	private static BufferedReader bufferedreader;
 
 	public ClientNew(){
 		System.setProperty("javax.net.ssl.trustStore","sslKey");
@@ -67,130 +59,76 @@ public class ClientNew{
 	*
 	*/
 	public static void openConection(String hostPort){
-		if(findAndSetServerDetails(hostPort)){
-
-			try {
-
-				// Sets SSL as default
-				sslsocketfactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
-
-				// Connects to server (may need try statement)
-				sslsocket = (SSLSocket) sslsocketfactory.createSocket(host, serverPort);
-
-				outputstream = sslsocket.getOutputStream();
-				outputstreamwriter = new OutputStreamWriter(outputstream);
-				bufferedwriter = new BufferedWriter(outputstreamwriter);
-
-
-				inputstream = sslsocket.getInputStream();
-				inputstreamreader = new InputStreamReader(inputstream);
-				bufferedreader = new BufferedReader(inputstreamreader);
-
-				// complete handshake
-				bufferedwriter.write("Hello\n");
-				bufferedwriter.flush();
+		if (socket == null) {
+				if (findAndSetServerDetails(hostPort)){
+					try {
+						// Sets SSL as default
+						socketfactory = new TCSocketFactory(host, serverPort);
+		
+						// Connects to server (may need try statement)
+						socket = socketfactory.open();
+		
+						}
+					catch(Exception e){
+						throw new RuntimeException(e);
+					}
 				}
-			catch(Exception e){
-				e.printStackTrace();
 			}
-		}
 	}
 	/*
-	* Closes the connection if the conection is open. 
+	* Do nothing. 
 	*
 	*/
 	public static void closeConection(){
-		if (sslsocket.isConnected()){
-			try{
-				sslsocket.close();
-			}
-			catch(Exception e){
-				e.printStackTrace();
-			}
-		}
+		//... NOOP
 	}
 
-	  public static void sendFile(String fileName){
+	public static void receiveResponse(TCSocket socket) {
+		TCResponseMessage response = (TCResponseMessage) socket.readPacket();
+		System.out.println(response.message);
+
+	}
+
+	public static void sendFile(String fileName){
 		try {
-			// tell the server we're about to send a file.
-			bufferedwriter.write("-a-\n");
-			bufferedwriter.flush();
-
-			// send the name of the file
-			bufferedwriter.write(fileName+"\n\n");
-			bufferedwriter.flush();
-
-
-			File source = new File(fileName);
-
-
-			InputStream input = null;
-			OutputStream output = null;
-
-			input = new FileInputStream(source);
-			output = outputstream;
-			byte[] buf = new byte[1024];
-			int bytesRead;
-				
-			while ((bytesRead = input.read(buf)) > 0) {
-				output.write(buf, 0, bytesRead);
-			}
-			System.out.println("Transfer complete");
+			byte[] fileBytes = TrustManager.loadFileAsBytes(fileName);
+			TCUploadRequestMessage message = new TCUploadRequestMessage(fileName, fileBytes);
+			socket.sendPacket(message);
+			receiveResponse(socket);
 		}
-		catch (IOException e){
-			e.printStackTrace();
-		}       
+		catch(Exception e){
+			throw new RuntimeException(e);
+		}      
 	}
 
-	public static void fetchFile(String fileName, int c){
-
-		try{
-			bufferedwriter.write("-f-\n");
-			bufferedwriter.flush();
-
-				// send the name of the file
-			bufferedwriter.write(c + "\n");
-			bufferedwriter.flush();
-
-			bufferedwriter.write(fileName+"\n\n");
-			bufferedwriter.flush();
-
-
-
-			String trusted = bufferedreader.readLine();
-			if (trusted.equals("T")){
-
+	public static void fetchFile(String fileName, int c){ 
+		try {
+			TCDownloadRequestMessage message = new TCDownloadRequestMessage(fileName, c);
+			socket.sendPacket(message);
+			TCDownloadResponseMessage response = (TCDownloadResponseMessage) socket.readPacket();
+			if (response.success) {
 				File dest = new File(fileName);
-
-
-				InputStream input = null;
-				OutputStream output = null;
-
-				input = inputstream;
-				output = new FileOutputStream(dest);
-				byte[] buf = new byte[1024];
+				OutputStream output = new FileOutputStream(dest);
 				int bytesRead;
-						
-				while ((bytesRead = input.read(buf)) > 0) {
-					output.write(buf, 0, bytesRead);
-				}
-				System.out.println("Transfer complete");
-			}
-			else{
-				System.out.println("The file: " + fileName + " Was not Trusted");
-			}
-		}
-		catch (IOException e){
-			System.out.println("failed");
+				output.write(response.payload);
+			} else {
+				System.out.println(response.message);
+			} 
+		} catch (IOException e){
+			throw new RuntimeException(e);
 		}  
 	}
 
 	public static void listFiles(){
 		try {
-			bufferedwriter.write("-l-\n");
-			bufferedwriter.flush();
 
-			String str = null;
+			TCListRequestMessage message = new TCListRequestMessage();
+			socket.sendPacket(message);
+			TCListResponseMessage response = (TCListResponseMessage) socket.readPacket();
+			
+			List<TCFileList.Entry> fileList = response.files.getFiles();
+
+
 	        while ((str = bufferedreader.readLine()) != null) {
 
 	        	if(str.equals("===EOF===")){

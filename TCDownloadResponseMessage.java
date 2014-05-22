@@ -7,9 +7,9 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
 class TCDownloadResponseMessage implements TCMessage {
-  private boolean success;
-  private String message;
-  private byte[] payload;
+  public boolean success;
+  public String message;
+  public byte[] payload;
 
   public TCDownloadResponseMessage(boolean success, String message, byte[] payload) {
     this.success = success;

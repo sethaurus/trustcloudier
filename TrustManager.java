@@ -44,7 +44,6 @@ class TrustManager {
 		// No internal state is maintained.
 	}
 
-
 	public boolean checkCircumference(String fileName, int expectedCircumference) {
 		// Determine whether a file is protected by a ring-of-trust with
 		// at least the specified circumference.
@@ -90,6 +89,31 @@ class TrustManager {
 			throw new RuntimeException(ex);
 		}
 		return outputFile;
+	}
+
+	public static byte[] loadFileAsBytes(String filePath) {
+		// Load a file into a raw array of bytes.
+		try {
+			RandomAccessFile file = new RandomAccessFile(filePath, "r");
+			byte[] result = new byte[(int)file.length()];
+			file.read(result); 
+			return result;
+		} catch(Exception ex) {
+			throw new RuntimeException(ex);
+		} 
+	}
+
+	public HashSet<String> getFileSignatories(File file) {
+		// Returns a list of NAMES of signatories of this file.
+		// Invalid signatures are discarded here.
+		HashSet<String> result = new HashSet<String>();
+		for (File signature: findPossibleSignatures(file)) {
+			if (verifySignature(signature)) {
+				String identityName = getNameOfSignatory(signature);
+				result.add(identityName);
+			}
+		}
+		return result;
 	}
 
 	/* End Public Interface */
@@ -158,19 +182,6 @@ class TrustManager {
 		}
 
 		return largestRingSeen;
-	}
-
-	private HashSet<String> getFileSignatories(File file) {
-		// Returns a list of NAMES of signatories of this file.
-		// Invalid signatures are discarded here.
-		HashSet<String> result = new HashSet<String>();
-		for (File signature: findPossibleSignatures(file)) {
-			if (verifySignature(signature)) {
-				String identityName = getNameOfSignatory(signature);
-				result.add(identityName);
-			}
-		}
-		return result;
 	}
 
 	private String getNameOfSignatory(File sigFile) {
@@ -273,17 +284,6 @@ class TrustManager {
 		return (X509Certificate) factory.generateCertificate(input);
 	}
 
-	private byte[] loadFileAsBytes(String filePath) {
-		// Load a file into a raw array of bytes.
-		try {
-			RandomAccessFile file = new RandomAccessFile(filePath, "r");
-			byte[] result = new byte[(int)file.length()];
-			file.read(result); 
-			return result;
-		} catch(Exception ex) {
-			throw new RuntimeException(ex);
-		} 
-	}
 
 	/* Begin Tests */
 

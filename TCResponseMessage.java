@@ -8,7 +8,7 @@ import java.nio.charset.Charset;
 
 abstract class TCResponseMessage implements TCMessage {
   private boolean success;
-  private String message;
+  public String message;
 
   public TCResponseMessage(boolean success, String message) {
     this.success = success;

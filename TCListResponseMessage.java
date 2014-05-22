@@ -7,7 +7,7 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
 class TCListResponseMessage implements TCMessage {
-  private TCFileList files;
+  public TCFileList files;
 
   public TCListResponseMessage(TCFileList files) {
     this.files = files;

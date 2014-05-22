@@ -172,7 +172,7 @@ public class trustcloud {
 		}
 
 		for(int i = 0; i < fileCertName.size(); i++){
-			back.sendFile(back.vouchForFile(fileVouchName.get(i), fileCertName.get(i)));
+			back.vouchForFile(fileVouchName.get(i), fileCertName.get(i));
 		}
 
 		// list all file if required

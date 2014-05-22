@@ -7,7 +7,7 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
 abstract class TCResponseMessage implements TCMessage {
-  private boolean success;
+  public boolean success;
   public String message;
 
   public TCResponseMessage(boolean success, String message) {

@@ -6,57 +6,55 @@ import java.io.*;
 
 public class Server {
 
-	private static SSLServerSocketFactory sslserversocketfactory;
-	private static SSLServerSocket sslserversocket;
-	private static SSLSocket sslsocket;
-
 	/**
 	 * The server will accept the connection from the client
 	 * If the server sees client lose connection, re-establish
 	 */
 	
-	public static String getListOfFiles() {
-        File file = null;
-        String[] paths;
-            
-        try {      
-            // create new file object
-            file = new File("./");
-                                 
-            // array of files and directory
+	public TCFileList getListOfFiles() {
+		File file = null;
+		String[] paths;
+			
+		try {      
+			// create new file object
+			file = new File("./");
+								 
+			// array of files and directory
+			paths = file.list();
 
-            paths = file.list();
-            
-	        // for each name in the path array
-	        String fileListRepr = "Ring / Filename\n---- / --------\n";
-	        TrustManager manager = new TrustManager();
-	        for (String path:paths) {
-	            // prints filename and directory name
-	            if (!path.endsWith(".sig")) {
-	            	int circumference = 0;
-	            	try {
-	                	circumference = manager.getCircumference(path);
-	                } catch(Exception ex) { }
-	                fileListRepr += "  " + (Integer.toString(circumference)) + "  / " +  path + "\n";
-	            }
-	        }
+			TCFileList filesList = new TCFileList();
+			
+			// for each name in the path array
+			// String fileListRepr = "Ring / Filename\n---- / --------\n";
+			TrustManager manager = new TrustManager();
+			for (String path:paths) {
+				// prints filename and directory name
+				if (!path.endsWith(".sig")) {
+					int circumference = 0;
+					try {
+						circumference = manager.getCircumference(path);
+					} catch(Exception ex) { }
 
-	        return(fileListRepr);
-	        
+					filesList.add(path, Integer.toString(circumference), " ");
+				}
+			}
 
-        } catch (Exception e) {
-            // if any error occurs
-            e.printStackTrace();
-        }
-        return ("not found");
-    }
+			return(filesList);
+			
+
+		} catch (Exception e) {
+			// if any error occurs
+			e.printStackTrace();
+		}
+		return (null);
+	}
 
 
-    private TCUploadResponseMessage uploadFile(TCUploadRequestMessage message){
+	private TCUploadResponseMessage uploadFile(TCUploadRequestMessage message){
 
-    	try{
+		try{
 
-	    	System.out.println("Receving a file");
+			System.out.println("Receving a file");
 
 			File dest = new File(message.filename);
 
@@ -71,22 +69,24 @@ public class Server {
 			
 		}
 
-    }
+	}
 
-    private void downloadFile(TCDownloadRequestMessage message){
+	private void downloadFile(TCDownloadRequestMessage message){
 
 
-    }
+	}
 
-    private void createVouch(TCVouchRequestMessage message){
-    	// get the name from trust manager
-    	// create an TCUploadRequestMessage
-    	// call upload file with the TCUploadRequestMessage
-    }
+	private void createVouch(TCVouchRequestMessage message){
+		// get the name from trust manager
 
-    private void listFiles(TCListRequestMessage massage){
+		// create an TCUploadRequestMessage
+		// call upload file with the TCUploadRequestMessage
+	}
 
-    }
+	private TCListResponseMessage listFiles(TCListRequestMessage massage){
+		return (new TCListResponseMessage(getListOfFiles()));
+
+	}
 
 
 	public static void main(String[] args) {

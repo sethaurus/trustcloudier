@@ -61,6 +61,17 @@ class TCFileList {
     return buff.array();
   }
 
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+
+    for (Entry item : items) {
+      sb.append(item.toString());
+      sb.append("\n\n");
+    }
+
+    return sb.toString();
+  }
+
   private class Entry {
     public String fileName;
     public int protection;
@@ -132,6 +143,23 @@ class TCFileList {
       }
 
       return buff.array();
+    }
+
+    public String toString() {
+      StringBuilder sb = new StringBuilder();
+
+      sb.append("Name: ");
+      sb.append(fileName);
+      sb.append("\nProtection: ");
+      sb.append(protection);
+      sb.append("\nSigned by: ");
+
+      for (String sig : signatures) {
+        sb.append(sig);
+        sb.append(" ");
+      }
+
+      return sb.toString();
     }
   }
 }

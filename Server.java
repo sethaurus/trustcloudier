@@ -23,9 +23,7 @@ public class Server {
 			paths = file.list();
 
 			TCFileList filesList = new TCFileList();
-			
-			// for each name in the path array
-			// String fileListRepr = "Ring / Filename\n---- / --------\n";
+
 			TrustManager manager = new TrustManager();
 			for (String path:paths) {
 				// prints filename and directory name
@@ -38,10 +36,7 @@ public class Server {
 					filesList.add(path, Integer.toString(circumference), " ");
 				}
 			}
-
 			return(filesList);
-			
-
 		} catch (Exception e) {
 			// if any error occurs
 			e.printStackTrace();
@@ -73,6 +68,17 @@ public class Server {
 
 	private void downloadFile(TCDownloadRequestMessage message){
 
+		System.out.println("Sending a file");
+
+		if(checkCircumference(message.filename, message.protection)){
+
+			TrustManager trust = new TrustManager();
+			return (new TCDownloadResponseMessage(true, "DownLoad sucess", trust.loadFileAsBytes(message.filename)));
+		} else {
+			return (new TCUploadResponseMessage(false, "File was not secure"));
+		}
+
+
 
 	}
 
@@ -91,7 +97,6 @@ public class Server {
 
 	public static void main(String[] args) {
 
-		//while (true) {
 		int serverPort = 19999;
 
 		TCServerSocket socket = new TCServerSocketFactory(serverPort).open();
@@ -108,7 +113,7 @@ public class Server {
 		}
 
 		if(message instanceof TCVouchRequestMessage){
-			connection.sendPacket((createVouch((TCVouchRequestMessage) message));
+			connection.sendPacket(createVouch((TCVouchRequestMessage) message));
 		}
 
 		if(message instanceof TCListRequestMessage) {

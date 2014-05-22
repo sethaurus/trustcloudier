@@ -7,8 +7,8 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
 class TCDownloadRequestMessage implements TCMessage {
-  private String fileName;
-  private int protection;
+  public String fileName;
+  public int protection;
 
   public TCDownloadRequestMessage(String fileName, int protection) {
     this.fileName = fileName;

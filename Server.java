@@ -27,22 +27,22 @@ public class Server {
 
             paths = file.list();
             
-        // for each name in the path array
-        String fileListRepr = "Ring / Filename\n---- / --------\n";
-        TrustManager manager = new TrustManager();
-        for (String path:paths) {
-            // prints filename and directory name
-            if (!path.endsWith(".sig")) {
-            	int circumference = 0;
-            	try {
-                	circumference = manager.getCircumference(path);
-                } catch(Exception ex) { }
-                fileListRepr += "  " + (Integer.toString(circumference)) + "  / " +  path + "\n";
-            }
-        }
+	        // for each name in the path array
+	        String fileListRepr = "Ring / Filename\n---- / --------\n";
+	        TrustManager manager = new TrustManager();
+	        for (String path:paths) {
+	            // prints filename and directory name
+	            if (!path.endsWith(".sig")) {
+	            	int circumference = 0;
+	            	try {
+	                	circumference = manager.getCircumference(path);
+	                } catch(Exception ex) { }
+	                fileListRepr += "  " + (Integer.toString(circumference)) + "  / " +  path + "\n";
+	            }
+	        }
 
-        return(fileListRepr + "===EOF===\n");
-        
+	        return(fileListRepr);
+	        
 
         } catch (Exception e) {
             // if any error occurs
@@ -51,86 +51,125 @@ public class Server {
         return ("not found");
     }
 
+
+    private void uploadFile(TCUploadRequestMessage message){
+    	System.out.println("Receving a file");
+
+		File dest = new File(message.filename);
+
+		OutputStream output = new FileOutputStream(dest);
+	
+		output.write(message.fileData);
+
+    }
+
+    private void downloadFile(TCDownloadRequestMessage message){
+    	
+
+    }
+
+    private void createVouch(TCVouchRequestMessage message){
+    	// get the name from trust manager
+    	// create an TCUploadRequestMessage
+    	// call upload file with the TCUploadRequestMessage
+    }
+
+    private void listFiles(TCListRequestMessage massage){
+
+    }
+
+
 	public static void main(String[] args) {
 
-		while (true) {  
+		//while (true) {
+		int serverPort = 19999;
 
-			int serverPort = 19999;
+		TCServerSocket socket = new TCServerSocketFactory(serverPort).open();
+
+		TCSocket connection = sockect.accept();
+		TCMessage message = connection.readPacket();
+
+		if(message instanceof TCUploadRequestMessage){
+			uploadFile((TCUploadRequestMessage) message);
+		}
+
+		if(message instanceof TCDownloadRequestMessage){
+			downloadFile((TCDownloadRequestMessage) message);
+		}
+
+		if(message instanceof TCVouchRequestMessage){
+			createVouch((TCVouchRequestMessage) message);
+		}
+
+		if(message instanceof TCListRequestMessage) {
+			listFiles((TCListRequestMessage) message);
+		}
+			/*
 			Server serverInstance = new Server();
 			System.setProperty("javax.net.ssl.keyStore","sslKey");
 			System.setProperty("javax.net.ssl.keyStorePassword", "123456");
-
-			try {
-
+			*/
+				/*
 				serverInstance.sslserversocketfactory = (SSLServerSocketFactory) SSLServerSocketFactory.getDefault();      
 				serverInstance.sslserversocket = (SSLServerSocket) serverInstance.sslserversocketfactory.createServerSocket(serverPort);
-				System.out.println("Server Initialized. SSL set as default and on port " + serverPort);
+				
+				//System.out.println("Server Initialized. SSL set as default and on port " + serverPort);
 
 				serverInstance.sslsocket = (SSLSocket) serverInstance.sslserversocket.accept();
 
 				
-				// Server receives input
-				InputStream inputstream = serverInstance.sslsocket.getInputStream();
-				InputStreamReader inputstreamreader = new InputStreamReader(inputstream);
-				BufferedReader bufferedreader = new BufferedReader(inputstreamreader);
+*/
+		String str = null;
+			while ((str = bufferedreader.readLine()) != null) {
 
-				OutputStream outputstream = serverInstance.sslsocket.getOutputStream();
-				OutputStreamWriter outputstreamwriter = new OutputStreamWriter(outputstream);
-				BufferedWriter bufferedwriter = new BufferedWriter(outputstreamwriter);
+				if(str.equals("-a-")){
+					System.out.println("Receving a file");
+					String fileName = bufferedreader.readLine();
 
-				String str = null;
-				while ((str = bufferedreader.readLine()) != null) {
+					File dest = new File(fileName);
 
-					if(str.equals("-a-")){
-						System.out.println("Receving a file");
-						String fileName = bufferedreader.readLine();
 
-						File dest = new File(fileName);
+					InputStream input = null;
+					OutputStream output = null;
 
+					input = inputstream;
+					output = new FileOutputStream(dest);
+					byte[] buf = new byte[1024];
+					int bytesRead;
+				
+					while ((bytesRead = input.read(buf)) > 0) {
+							output.write(buf, 0, bytesRead);
+
+					}
+				}
+
+				if(str.equals("-f-")){
+					System.out.println("sending a file");
+						
+					int c = Integer.parseInt(bufferedreader.readLine());
+					System.out.println(c);
+					String fileName = bufferedreader.readLine();
+					boolean isTrusted = new TrustManager().checkCircumference(fileName, c);
+
+					if(isTrusted){
+						bufferedwriter.write("T\n");
+						bufferedwriter.flush();
+						File source = new File(fileName);
 
 						InputStream input = null;
 						OutputStream output = null;
 
-						input = inputstream;
-						output = new FileOutputStream(dest);
+						input = new FileInputStream(source);
+						output = outputstream;
 						byte[] buf = new byte[1024];
 						int bytesRead;
-				
-						while ((bytesRead = input.read(buf)) > 0) {
-
-							output.write(buf, 0, bytesRead);
-
-						}
-					}
-
-					if(str.equals("-f-")){
-						System.out.println("sending a file");
-						
-						int c = Integer.parseInt(bufferedreader.readLine());
-						System.out.println(c);
-						String fileName = bufferedreader.readLine();
-						boolean isTrusted = new TrustManager().checkCircumference(fileName, c);
-
-						if(isTrusted){
-							bufferedwriter.write("T\n");
-							bufferedwriter.flush();
-							File source = new File(fileName);
-
-
-							InputStream input = null;
-							OutputStream output = null;
-
-							input = new FileInputStream(source);
-							output = outputstream;
-							byte[] buf = new byte[1024];
-							int bytesRead;
 								
-							while ((bytesRead = input.read(buf)) > 0) {
-								output.write(buf, 0, bytesRead);
-							}
-							serverInstance.sslserversocket.close();
-							serverInstance.sslsocket.close();
+						while ((bytesRead = input.read(buf)) > 0) {
+							output.write(buf, 0, bytesRead);
 						}
+						serverInstance.sslserversocket.close();
+						serverInstance.sslsocket.close();
+					}
 						else{
 							bufferedwriter.write("F\n");
 
@@ -151,15 +190,6 @@ public class Server {
 						System.out.println();
 					}
 				}
-
-			} catch (Exception ie) {
-
-				ie.printStackTrace();
-				
-				try {
-					serverInstance.sslserversocket.close();
-					serverInstance.sslsocket.close();
-				} catch (Exception e) {}
 				
 				continue;
 			}

@@ -7,8 +7,8 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
 class TCUploadRequestMessage implements TCMessage {
-  private String fileName;
-  private byte[] fileData;
+  public String fileName;
+  public byte[] fileData;
 
   public TCUploadRequestMessage(String fileName, byte[] fileData) {
     this.fileName = fileName;

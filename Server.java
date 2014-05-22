@@ -3,6 +3,7 @@ import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSocket;
 import java.io.BufferedReader;
 import java.io.*;   
+import java.util.*;
 
 public class Server {
 
@@ -33,7 +34,8 @@ public class Server {
 						circumference = manager.getCircumference(path);
 					} catch(Exception ex) { }
 					File file3 = new File(path); 
-					String signs[] = (String[]) manager.getFileSignatories(file3).toArray();
+					Object[] signObjects = manager.getFileSignatories(file3).toArray();
+					String signs[] = Arrays.copyOf(signObjects, signObjects.length, String[].class);
 					filesList.add(path, circumference, signs);
 				}
 			}
@@ -86,10 +88,11 @@ public class Server {
 	}
 
 	private TCVouchResponseMessage createVouch(TCVouchRequestMessage message) {
+		String keyName = message.certName.split(TrustManager.CERTIFICATE_EXTENSION)[0];
 		// get the name from trust manager
-
+		String sigFileName = TrustManager.createSignatureName(message.fileName, keyName);
 		// create an TCUploadRequestMessage
-		TCUploadRequestMessage newMessage = new TCUploadRequestMessage(message.fileName, message.signatureData);
+		TCUploadRequestMessage newMessage = new TCUploadRequestMessage(sigFileName, message.signatureData);
 		// call upload file with the TCUploadRequestMessage
 		TCUploadResponseMessage m2 = uploadFile(newMessage);
 		return new TCVouchResponseMessage(m2.success, m2.message);
@@ -102,32 +105,38 @@ public class Server {
 
 
 	public static void main(String[] args) {
+		int serverPort = 19999;
+		Server server = new Server();
+		TCServerSocket socket = null;
 		try {
-			Server server = new Server();
-			int serverPort = 19999;
-
-			TCServerSocket socket = new TCServerSocketFactory(serverPort).open();
-
-			TCSocket connection = socket.accept();
-			TCMessage message = connection.readPacket();
-		
-			if(message instanceof TCUploadRequestMessage) {
-				connection.sendPacket(server.uploadFile((TCUploadRequestMessage) message));
-			}
-
-			if(message instanceof TCDownloadRequestMessage) {
-				connection.sendPacket(server.downloadFile((TCDownloadRequestMessage) message));
-			}
-
-			if(message instanceof TCVouchRequestMessage) {
-				connection.sendPacket(server.createVouch((TCVouchRequestMessage) message));
-			}
-
-			if(message instanceof TCListRequestMessage) {
-				connection.sendPacket(server.listFiles((TCListRequestMessage) message));
-			}
+			socket = new TCServerSocketFactory(serverPort).open();
 		} catch (Exception ex) {
 			throw new RuntimeException(ex);
+		}
+
+		while (true){
+			try {
+				TCSocket connection = socket.accept();
+				TCMessage message = connection.readPacket();
+			
+				if(message instanceof TCUploadRequestMessage) {
+					connection.sendPacket(server.uploadFile((TCUploadRequestMessage) message));
+				}
+	
+				if(message instanceof TCDownloadRequestMessage) {
+					connection.sendPacket(server.downloadFile((TCDownloadRequestMessage) message));
+				}
+	
+				if(message instanceof TCVouchRequestMessage) {
+					connection.sendPacket(server.createVouch((TCVouchRequestMessage) message));
+				}
+	
+				if(message instanceof TCListRequestMessage) {
+					connection.sendPacket(server.listFiles((TCListRequestMessage) message));
+				}
+			} catch (Exception ex) {
+				throw new RuntimeException(ex);
+			}
 		}
 	}
 }

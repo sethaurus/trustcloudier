@@ -38,19 +38,24 @@ public class ClientNew{
 	}
 
 	private static boolean findAndSetServerDetails(String hostPort) {
-		String parts[] = hostPort.split(":");
-
-		// Create and initialize socket and port
-		host = parts[0];
-
-		// Check if port is a digit
 		try {
-			serverPort = Integer.parseInt(parts[1]);
-		} catch (NumberFormatException e) {
-			System.out.println("Error: Server Port is NOT a number");
-			return false;
-		}
+			String parts[] = hostPort.split(":");
 
+			// Create and initialize socket and port
+			host = parts[0];
+
+			// Check if port is a digit
+			try {
+				serverPort = Integer.parseInt(parts[1]);
+			} catch (NumberFormatException e) {
+				System.out.println("Error: Server Port is NOT a number");
+				return false;
+			}
+		} catch (Exception ex) {
+			System.out.println("ERROR: Could not find a server/port.");
+			System.exit(-1);
+
+		}
 		return true;
 	}
 	/*
@@ -69,7 +74,8 @@ public class ClientNew{
 	
 					}
 				catch(Exception e) {
-					throw new RuntimeException(e);
+					System.out.println("Sorry, the server at " + hostPort + " could not be reached.");
+					System.exit(-1);
 				}
 			}
 		}
@@ -132,7 +138,8 @@ public class ClientNew{
 			TCFileList fileList = response.files;
 			System.out.println(fileList.toString());
 	    } catch(Exception ex) {
-	    	throw new RuntimeException(ex);
+	    	System.out.println("Could not list the files.");
+			System.exit(-1);
 	    }
 	}
 

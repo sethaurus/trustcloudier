@@ -46,6 +46,7 @@ class TrustManager {
 
 	public static final String SIG_EXTENSION = ".sig";
 	public static final String SIG_NAME_DELIMITER = ".signed-by.";
+	public static final String CERTIFICATE_EXTENSION = ".crt";
 
 	public boolean checkCircumference(String fileName, int expectedCircumference) {
 		// Determine whether a file is protected by a ring-of-trust with
@@ -66,7 +67,7 @@ class TrustManager {
 		return maxSeen;
 	}
 
-	public String createSignatureName(String inputFileName, String identityName) {
+	public static String createSignatureName(String inputFileName, String identityName) {
 		return inputFileName + SIG_NAME_DELIMITER + identityName + SIG_EXTENSION;
 	}
 
@@ -123,6 +124,8 @@ class TrustManager {
 		return result;
 	}
 
+	
+
 	/* End Public Interface */
 
 	private HashSet<String> findParentKeys(String identityName) {
@@ -133,7 +136,7 @@ class TrustManager {
 		// a certificate, just like any other file gets vouched-for.
 		// So: to find the other identities who have vouched for an identity, we just 
 		// determine who has vouched for its certificate file.
-		File certFile = new File(identityName + ".crt");
+		File certFile = new File(identityName + CERTIFICATE_EXTENSION);
 		return getFileSignatories(certFile);
 	}
 
@@ -285,7 +288,7 @@ class TrustManager {
 
 	private X509Certificate loadCertificate(String identityName) throws Exception {
 		// Given an identity name, locate and load its certificate as an object
-		File file = new File(identityName + ".crt");
+		File file = new File(identityName + CERTIFICATE_EXTENSION);
 		FileInputStream input = new FileInputStream(file);
 		CertificateFactory factory = CertificateFactory.getInstance("X.509");
 		return (X509Certificate) factory.generateCertificate(input);

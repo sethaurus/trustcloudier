@@ -75,7 +75,7 @@ public class Server {
 			TrustManager trust = new TrustManager();
 			return (new TCDownloadResponseMessage(true, "DownLoad sucess", trust.loadFileAsBytes(message.filename)));
 		} else {
-			return (new TCUploadResponseMessage(false, "File was not secure"));
+			return (new TCDownloadResponseMessage(false, "File was not secure"), new byte[0]);
 		}
 
 
@@ -86,6 +86,7 @@ public class Server {
 		// get the name from trust manager
 
 		// create an TCUploadRequestMessage
+		TCUploadRequestMessage newMessage = TCUploadRequestMessage(fileName, message.);
 		// call upload file with the TCUploadRequestMessage
 	}
 

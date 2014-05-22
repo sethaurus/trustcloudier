@@ -7,9 +7,9 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
 class TCVouchRequestMessage implements TCMessage {
-  private String fileName;
-  private String certName;
-  private byte[] signatureData;
+  public String fileName;
+  public String certName;
+  public byte[] signatureData;
 
   public TCVouchRequestMessage(String fileName, String certName, byte[] signatureData) {
     this.fileName = fileName;

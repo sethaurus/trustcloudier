@@ -52,7 +52,7 @@ public class Server {
 
 		try{
 
-			System.out.println("Receving a file: " + message.fileName);
+			System.out.println("Uploading a file: " + message.fileName);
 
 			File dest = new File(message.fileName);
 			if (dest.exists() && message.fileName.endsWith(".crt")) {
@@ -112,6 +112,9 @@ public class Server {
 
 	public static void main(String[] args) {
 		int serverPort = 19999;
+		if (args.length > 0) {
+			serverPort = Integer.parseInt(args[0]);
+		}
 		Server server = new Server();
 		TCServerSocket socket = null;
 		try {
@@ -119,6 +122,9 @@ public class Server {
 		} catch (Exception ex) {
 			throw new RuntimeException(ex);
 		}
+
+		System.out.print("listening on port ");
+		System.out.println(serverPort);
 
 		while (true){
 			try {

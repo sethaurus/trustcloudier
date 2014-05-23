@@ -77,8 +77,7 @@ public class ClientNew{
 	
 					}
 				catch(Exception e) {
-					throw new RuntimeException(e);
-					// fatalError("Sorry, the server at " + hostPort + " could not be reached.");
+					fatalError("Sorry, the server at " + hostPort + " could not be reached.");
 				}
 			}
 		}
@@ -103,15 +102,20 @@ public class ClientNew{
 	}
 
 	public static void sendFile(String fileName) {
+		byte[] fileBytes;
 		try {
-			byte[] fileBytes = TrustManager.loadFileAsBytes(fileName);
-			TCUploadRequestMessage message = new TCUploadRequestMessage(fileName, fileBytes);
-			socket.sendPacket(message);
-			receiveResponse(socket);
+			fileBytes = TrustManager.loadFileAsBytes(fileName);
+			try {
+				TCUploadRequestMessage message = new TCUploadRequestMessage(fileName, fileBytes);
+				socket.sendPacket(message);
+				receiveResponse(socket);
+			} catch(Exception e) {
+				fatalError("Unable to complete upload.");
+			}
 		}
 		catch(Exception e) {
 			fatalError("Couldn't find the file " + fileName);
-		}      
+		}   
 	}
 
 	public static void fetchFile(String fileName, int c) { 
@@ -159,11 +163,10 @@ public class ClientNew{
 		}
 		try {
 			TCVouchRequestMessage message = new TCVouchRequestMessage(fileName, certFileName, sigBytes);
-			System.out.println("Sending vouch-request.");
 			socket.sendPacket(message);
 			receiveResponse(socket);
 		} catch (Exception ex) {
-			throw new RuntimeException(ex);
+			fatalError("Error: couldn't vouch.");
 		}
 	}
 

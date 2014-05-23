@@ -77,7 +77,8 @@ public class ClientNew{
 	
 					}
 				catch(Exception e) {
-					fatalError("Sorry, the server at " + hostPort + " could not be reached.");
+					throw new RuntimeException(e);
+					// fatalError("Sorry, the server at " + hostPort + " could not be reached.");
 				}
 			}
 		}

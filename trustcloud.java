@@ -130,11 +130,11 @@ public class trustcloud {
 
 							break;
 					default:
-							System.out.println("Invalited input");
+							System.out.println("Invalid input");
 				}
 			}
 			else {
-				System.out.println("Error pasing input");
+				System.out.println("Error: couldn't understand " + args[argument] + " in this context");
 				break;
 			}
 		argument++;

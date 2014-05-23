@@ -152,6 +152,9 @@ class TrustManager {
 
 		// Initial path lists are the individual parents of the root.
 		for (String parentKey: findParentKeys(rootIdentityName)) {
+			// A certificate is inherently self-vouched; we must not double-count
+			// this vouching if an identity has EXPLICITLY vouched for its certificate
+			if (parentKey.equals(rootIdentityName)) continue;
 			ArrayList<String> basePath = new ArrayList<String>(Arrays.asList(parentKey));
 			unfinishedPaths.add(basePath);
 		}

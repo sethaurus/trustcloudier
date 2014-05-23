@@ -52,9 +52,12 @@ public class Server {
 
 		try{
 
-			System.out.println("Receving a file");
+			System.out.println("Receving a file: " + message.fileName);
 
 			File dest = new File(message.fileName);
+			if (dest.exists() && message.fileName.endsWith(".crt")) {
+				throw new RuntimeException("Cannot overwrite a certificate.");
+			}
 
 			OutputStream output = new FileOutputStream(dest);
 		
@@ -63,7 +66,7 @@ public class Server {
 			return (new TCUploadResponseMessage(true, "Sucessfully uploaded " + message.fileName));
 
 		} catch(Exception e) {
-			return (new TCUploadResponseMessage(false, "Upload fail"));
+			return (new TCUploadResponseMessage(false, "Upload failed: " + e.getMessage()));
 			
 		}
 
@@ -78,7 +81,7 @@ public class Server {
 		if(man.checkCircumference(message.fileName, message.protection)) {
 
 			TrustManager trust = new TrustManager();
-			return new TCDownloadResponseMessage(true, "DownLoad sucess", trust.loadFileAsBytes(message.fileName));
+			return new TCDownloadResponseMessage(true, "Download success!", trust.loadFileAsBytes(message.fileName));
 		} else {
 			return new TCDownloadResponseMessage(false, "File was not secure", new byte[0]);
 		}
@@ -88,8 +91,9 @@ public class Server {
 	}
 
 	private TCVouchResponseMessage createVouch(TCVouchRequestMessage message) {
-		System.out.println("Saved the voucher.");
+		
 		String keyName = message.certName.split(TrustManager.CERTIFICATE_EXTENSION)[0];
+		System.out.println(keyName + " is vouching for " + message.fileName);
 		// get the name from trust manager
 		String sigFileName = TrustManager.createSignatureName(message.fileName, keyName);
 		// create an TCUploadRequestMessage
@@ -100,6 +104,7 @@ public class Server {
 	}
 
 	private TCListResponseMessage listFiles(TCListRequestMessage massage) {
+		System.out.println("Listing files.");
 		return (new TCListResponseMessage(getListOfFiles()));
 
 	}
@@ -119,7 +124,7 @@ public class Server {
 			try {
 				TCSocket connection = socket.accept();
 				TCMessage message = connection.readPacket();
-				System.out.println("Received another packet.");
+				System.out.print("Message received: ");
 			
 				if(message instanceof TCUploadRequestMessage) {
 					connection.sendPacket(server.uploadFile((TCUploadRequestMessage) message));
@@ -130,7 +135,6 @@ public class Server {
 				}
 	
 				if(message instanceof TCVouchRequestMessage) {
-					System.out.println("Vouch-request received.");
 					connection.sendPacket(server.createVouch((TCVouchRequestMessage) message));
 				}
 	

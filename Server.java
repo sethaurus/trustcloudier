@@ -145,7 +145,7 @@ public class Server {
 					}
 				}
 			} catch (Exception ex) {
-				//ex.printStackTrace();
+				System.out.println("Client disconnected.");
 			}
 		}
 	}

@@ -97,9 +97,7 @@ public class ClientNew{
 			byte[] fileBytes = TrustManager.loadFileAsBytes(fileName);
 			TCUploadRequestMessage message = new TCUploadRequestMessage(fileName, fileBytes);
 			socket.sendPacket(message);
-			System.out.println("sendPacket called.");
 			TCResponseMessage response = (TCResponseMessage) socket.readPacket();
-			System.out.println("readPacket called.");
 			System.out.println(response.message);
 		}
 		catch(Exception e) {

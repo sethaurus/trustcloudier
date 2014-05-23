@@ -152,7 +152,7 @@ public class ClientNew{
 		byte[] sigBytes = null;
 		String certFileName = keyName + ".crt";
 		try {
-			// sendFile(certFileName);
+			sendFile(fileName);
 			TrustManager manager = new TrustManager();
 			File file = new File(fileName);
 			String sigFileName = manager.createSignature(file, keyName).getName();

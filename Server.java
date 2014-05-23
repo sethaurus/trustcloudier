@@ -114,35 +114,38 @@ public class Server {
 		int serverPort = 19999;
 		Server server = new Server();
 		TCServerSocket socket = null;
+		TCSocket connection = null;
 		try {
 			socket = new TCServerSocketFactory(serverPort).open();
 		} catch (Exception ex) {
 			throw new RuntimeException(ex);
 		}
-
+		
 		while (true){
 			try {
-				TCSocket connection = socket.accept();
-				TCMessage message = connection.readPacket();
-				System.out.print("Message received: ");
-			
-				if(message instanceof TCUploadRequestMessage) {
-					connection.sendPacket(server.uploadFile((TCUploadRequestMessage) message));
-				}
-	
-				if(message instanceof TCDownloadRequestMessage) {
-					connection.sendPacket(server.downloadFile((TCDownloadRequestMessage) message));
-				}
-	
-				if(message instanceof TCVouchRequestMessage) {
-					connection.sendPacket(server.createVouch((TCVouchRequestMessage) message));
-				}
-	
-				if(message instanceof TCListRequestMessage) {
-					connection.sendPacket(server.listFiles((TCListRequestMessage) message));
+				connection = socket.accept();
+				while(true){
+					TCMessage message = connection.readPacket();
+					System.out.print("Message received: ");
+				
+					if(message instanceof TCUploadRequestMessage) {
+						connection.sendPacket(server.uploadFile((TCUploadRequestMessage) message));
+					}
+		
+					if(message instanceof TCDownloadRequestMessage) {
+						connection.sendPacket(server.downloadFile((TCDownloadRequestMessage) message));
+					}
+		
+					if(message instanceof TCVouchRequestMessage) {
+						connection.sendPacket(server.createVouch((TCVouchRequestMessage) message));
+					}
+		
+					if(message instanceof TCListRequestMessage) {
+						connection.sendPacket(server.listFiles((TCListRequestMessage) message));
+					}
 				}
 			} catch (Exception ex) {
-				ex.printStackTrace();
+				//ex.printStackTrace();
 			}
 		}
 	}

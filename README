@@ -8,9 +8,9 @@ To compile the client: `javac ClientNew.java trustcloud.java TrustManager.java`
 To compile the server: `javac Server.java TrustManager.java`
 
 Both components expect the `sslKey` file to be present. Its password is hardcoded.
-The server defaults to port 19999.
+The server defaults to port 19999. Another port can be specified on the command line.
 
-A number of non-code files are included here for testing. They comprise 2 images and a small web of trust, involving 4 parties. Private key files (.jkey) are also included here so vouching can be performed by the client. They should be removed when run as a server.
+A number of non-code files are included here for testing. Private key files (.jkey) are also included here so vouching can be performed by the client. They should be removed when run as a server.
 
 Both the client and the server components expect filenames to be relative to their working directory.
 

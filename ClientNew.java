@@ -91,23 +91,16 @@ public class ClientNew{
 		//... NOOP
 	}
 
-	public static void receiveResponse(TCSocket socket) {
-		try {
-			TCResponseMessage response = (TCResponseMessage) socket.readPacket();
-			System.out.println(response.message);
-		} catch(Exception ex) {
-			throw new RuntimeException(ex);
-		}
-		
-
-	}
-
 	public static void sendFile(String fileName) {
+
 		try {
 			byte[] fileBytes = TrustManager.loadFileAsBytes(fileName);
 			TCUploadRequestMessage message = new TCUploadRequestMessage(fileName, fileBytes);
 			socket.sendPacket(message);
-			receiveResponse(socket);
+			System.out.println("sendPacket called.");
+			TCResponseMessage response = (TCResponseMessage) socket.readPacket();
+			System.out.println("readPacket called.");
+			System.out.println(response.message);
 		}
 		catch(Exception e) {
 			fatalError("Couldn't find the file " + fileName);
@@ -161,7 +154,8 @@ public class ClientNew{
 			TCVouchRequestMessage message = new TCVouchRequestMessage(fileName, certFileName, sigBytes);
 			System.out.println("Sending vouch-request.");
 			socket.sendPacket(message);
-			receiveResponse(socket);
+			TCResponseMessage response = (TCResponseMessage) socket.readPacket();
+			System.out.println(response.message);
 		} catch (Exception ex) {
 			throw new RuntimeException(ex);
 		}

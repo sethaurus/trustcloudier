@@ -123,14 +123,10 @@ public class Server {
 		} catch (Exception ex) {
 			throw new RuntimeException(ex);
 		}
-<<<<<<< HEAD
-		
-=======
 
 		System.out.print("listening on port ");
 		System.out.println(serverPort);
 
->>>>>>> FETCH_HEAD
 		while (true){
 			try {
 				connection = socket.accept();

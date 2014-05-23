@@ -93,30 +93,22 @@ public class ClientNew{
 	}
 
 	public static void sendFile(String fileName) {
-<<<<<<< HEAD
-
+		byte[] fileBytes = null;
 		try {
-			byte[] fileBytes = TrustManager.loadFileAsBytes(fileName);
+			try {
+				fileBytes = TrustManager.loadFileAsBytes(fileName);
+			}
+			catch(Exception e) {
+				fatalError("Couldn't find the file " + fileName);
+			} 
 			TCUploadRequestMessage message = new TCUploadRequestMessage(fileName, fileBytes);
 			socket.sendPacket(message);
 			TCResponseMessage response = (TCResponseMessage) socket.readPacket();
 			System.out.println(response.message);
-=======
-		byte[] fileBytes;
-		try {
-			fileBytes = TrustManager.loadFileAsBytes(fileName);
-			try {
-				TCUploadRequestMessage message = new TCUploadRequestMessage(fileName, fileBytes);
-				socket.sendPacket(message);
-				receiveResponse(socket);
-			} catch(Exception e) {
-				fatalError("Unable to complete upload.");
-			}
->>>>>>> FETCH_HEAD
+		} catch(Exception e) {
+			fatalError("Unable to complete upload.");
 		}
-		catch(Exception e) {
-			fatalError("Couldn't find the file " + fileName);
-		}   
+		
 	}
 
 	public static void fetchFile(String fileName, int c) { 

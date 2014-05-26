@@ -77,13 +77,16 @@ public class Server {
 		System.out.println("Sending a file");
 
 		TrustManager man = new TrustManager();
+		try {
+			if(man.checkCircumference(message.fileName, message.protection)) {
 
-		if(man.checkCircumference(message.fileName, message.protection)) {
-
-			TrustManager trust = new TrustManager();
-			return new TCDownloadResponseMessage(true, "Download success!", trust.loadFileAsBytes(message.fileName));
-		} else {
-			return new TCDownloadResponseMessage(false, "File was not secure", new byte[0]);
+				TrustManager trust = new TrustManager();
+				return new TCDownloadResponseMessage(true, "Download success!", trust.loadFileAsBytes(message.fileName));
+			} else {
+				return new TCDownloadResponseMessage(false, "File was not secure", new byte[0]);
+			}
+		} catch (Exception ex) {
+			return new TCDownloadResponseMessage(false, "Could not fetch the file", new byte[0]);
 		}
 
 

@@ -91,10 +91,13 @@ public class trustcloud {
 
 					case 4: // provide the remote address hosting the trustcloud server
 							argument++;
-							if (checkHostFormat(args[argument]))
-								serverConect = args[argument];
-							else
-								System.out.println("Hostname should be in this format - <hostname>:<port>");
+							try {
+								if (checkHostFormat(args[argument]))
+									serverConect = args[argument];
+								else throw new RuntimeException("");
+								} catch (Exception ex) {
+									System.out.println("Hostname should be in this format - <hostname>:<port>");
+								}
 							break;
 
 					case 5: //list all stored files and how they are protected

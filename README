@@ -3,14 +3,21 @@ Group Members:
 	- 20176974 Henry Greville
 	- 21153667 Emily Martin
 	- 20763213 Steven Tseng
+Sister Group:
+	- 21150739 Thomas Drake-Brockman
 
-To compile the client: `javac ClientNew.java trustcloud.java TrustManager.java`
-To compile the server: `javac Server.java TrustManager.java`
+This project has been developed on OSX, using JDK v1.7
 
-Both components expect the `sslKey` file to be present. Its password is hardcoded.
-The server defaults to port 19999. Another port can be specified on the command line.
+To compile the project and start the server, invoke 'deploy-server.sh'.
 
-A number of non-code files are included here for testing. Private key files (.jkey) are also included here so vouching can be performed by the client. They should be removed when run as a server.
+This will clean any existing .class files, recompile both the client and server from source,
+copy the new binaries into the 'server' subdirectory, and run a server instance there.
+At this point, the client can be invoked as `java trustcloud <options>`.
+
+The server defaults to port 19999. Another port can be specified on the command line (directly to Server.class).
+
+A number of non-code files are included here for testing. Private key files (.jkey) are also included here so vouching can be performed by the client. They do not belong on the server server.
+The server requires the key server_key.p12 to be present, while the client requires trustcloud_ca_cert.crt.
 
 Both the client and the server components expect filenames to be relative to their working directory.
 
@@ -23,7 +30,8 @@ java trustcloud -h localhost:19999 -v kittens.jpg alice
 java trustcloud -h localhost:19999 -v bob.crt alice
 
 Note that vouching for a `.crt` file represents vouching for the identity associated with the certificate. A ring of trust is constructed by performing this vouching.
-If a file is vouched-for with a certificate not present on the server, the vouching will be disregarded until the certificate is uploaded.
+If a file is vouched-for with a certificate not present on the server, the vouching will be stored but will be
+disregarded as invalid until the associated certificate is uploaded.
 
 the -v option takes two arguments.
 1: the name of the file to be vouched for (assumed to be in the current working directy of the client) (with file extension)

@@ -56,7 +56,7 @@ public class Server {
 
 			File dest = new File(message.fileName);
 			if (dest.exists() && message.fileName.endsWith(".crt")) {
-				throw new RuntimeException("Cannot overwrite a certificate.");
+				throw new RuntimeException("Did not overwrite certificate.");
 			}
 
 			OutputStream output = new FileOutputStream(dest);
@@ -66,7 +66,7 @@ public class Server {
 			return (new TCUploadResponseMessage(true, "Sucessfully uploaded " + message.fileName));
 
 		} catch(Exception e) {
-			return (new TCUploadResponseMessage(false, "Upload failed: " + e.getMessage()));
+			return (new TCUploadResponseMessage(false, "No upload: " + e.getMessage()));
 			
 		}
 
